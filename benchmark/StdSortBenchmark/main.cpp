@@ -2,6 +2,9 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
+#include "BenchmarkHelpers.h"
+
+using namespace Benchmark;
 
 static void BM_StdSortUInt32(benchmark::State& state)
 {
@@ -10,20 +13,20 @@ static void BM_StdSortUInt32(benchmark::State& state)
     {
         state.PauseTiming();
 
+        // Fill array
         v.resize(state.range(0));
-        std::srand(0);
-        for(size_t i = 0; i < v.size(); i++)
-        {
-            v[i] = static_cast<uint32_t>(std::rand());
-        }
+        fill_random_values<uint32_t>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
-
         std::sort(v.begin(), v.end());
     }
 }
 
 // Run the benchmark
-BENCHMARK(BM_StdSortUInt32)->Args({1<<12});
+BENCHMARK(BM_StdSortUInt32)
+    ->Args({1<<8})
+    ->Args({1<<12})
+    ->Args({1<<16})
+    ->Args({1<<20});
 
 BENCHMARK_MAIN();
