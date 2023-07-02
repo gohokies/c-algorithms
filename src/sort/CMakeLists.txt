@@ -1,0 +1,1 @@
+add_library(sortlib STATIC insertionsort.c mergesort.c utils.c)
