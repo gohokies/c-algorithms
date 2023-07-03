@@ -1,1 +1,6 @@
-add_library(sortlib STATIC insertionsort.c mergesort.c utils.c)
+add_library(sortlib STATIC
+    sortcommon.c
+    insertionsort.c
+    mergesort.c
+    radixsort.c
+    )

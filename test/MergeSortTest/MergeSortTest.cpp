@@ -6,8 +6,17 @@
 
 using namespace Test;
 
+typedef int (*Sort)(
+    void *base,
+    size_t items,
+    size_t size,
+    CompareFunc compare,
+    SwapFunc swap,
+    void* buffer
+    );
+
 template<typename T>
-void CompareMergeSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2, CompareFunc cmp, SwapFunc swap)
+void CompareSortAndStdSort(Sort sort, std::vector<T> &v1, std::vector<T> &v2, CompareFunc cmp, SwapFunc swap)
 {
     struct Comparer
     {
@@ -28,7 +37,8 @@ void CompareMergeSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2, CompareF
     std::sort(v1.begin(), v1.end()/*, Comparer(cmp)*/);
 
     // Sort the other array with Radix sort
-    merge_sort(v2.data(), v2.size(), sizeof(T), cmp, swap, nullptr);
+    std::vector<T> swapBuffer(v2.size());
+    sort(v2.data(), v2.size(), sizeof(T), cmp, swap, swapBuffer.data());
 
     // Verify the two array should be the same
     ASSERT_TRUE(v1 == v2);
@@ -47,7 +57,7 @@ static void swap_uint32(void* lhs, void* rhs, size_t size)
 }
 
 template<typename T>
-void MergeSortTestAndVerify(T delta, size_t N, CompareFunc cmp, SwapFunc swap)
+void SortTestAndVerify(Sort sort, T delta, size_t N, CompareFunc cmp, SwapFunc swap)
 {
     std::vector<T> v1, v2;
 
@@ -58,10 +68,15 @@ void MergeSortTestAndVerify(T delta, size_t N, CompareFunc cmp, SwapFunc swap)
     // Clone the array
     v2 = v1;
 
-    CompareMergeSortAndStdSort(v1, v2, cmp, swap);
+    CompareSortAndStdSort(sort, v1, v2, cmp, swap);
 }
 
 TEST(MergeSortTest, MergeSortTest_uint32)
 {
-    MergeSortTestAndVerify<uint32_t>(0, 24, compare_uint32, swap_uint32);
+    SortTestAndVerify<uint32_t>(merge_sort, 0, 8192, compare_uint32, swap_uint32);
+}
+
+TEST(QuadSortTest, QuadSortTest_uint32)
+{
+    SortTestAndVerify<uint32_t>(quad_sort, 0, 4096, compare_uint32, swap_uint32);
 }

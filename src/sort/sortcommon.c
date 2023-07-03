@@ -1,6 +1,6 @@
 #include "sortcommon.h"
 #include "insertionsort.h"
-
+/*
 // stable, 1 compare, 0-1 swaps
 int _sort2(void* x1, void* x2, CompareFunc cmp, SwapFunc swap)
 {
@@ -142,4 +142,18 @@ int _small_sort(void* base, size_t nitems, size_t sizeElem, CompareFunc cmp, Swa
     }
 
     return r;    
+}
+*/
+
+size_t _checksum(void* base, size_t nitems, size_t sizeElem)
+{
+    size_t sum = 0;
+    uint8_t* ptr = (uint8_t*)base;
+
+    for(size_t i = 0; i < nitems * sizeElem; i++)
+    {
+        sum += *ptr++;
+    }
+
+    return sum;
 }

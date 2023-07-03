@@ -11,7 +11,7 @@ extern "C"
 #endif
 
 // Sorts [begin, end) using insertion sort with the given comparison function.
-int insertion_sort(void* base, size_t nItems, size_t sizeElem, CompareFunc cmp, MoveFunc mv, void* buffer);
+int insertion_sort(void* base, size_t nItems, size_t sizeElem, CompareFunc cmp, MoveFunc mv);
 
 #ifdef __cplusplus
 }

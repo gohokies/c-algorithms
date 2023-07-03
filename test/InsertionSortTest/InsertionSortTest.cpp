@@ -28,8 +28,7 @@ void CompareInsertionSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2, Comp
     std::sort(v1.begin(), v1.end()/*, Comparer(cmp)*/);
 
     // Sort the other array with Radix sort
-    T tmp;
-    insertion_sort(v2.data(), v2.size(), sizeof(T), cmp, mv, &tmp);
+    insertion_sort(v2.data(), v2.size(), sizeof(T), cmp, mv);
 
     // Verify the two array should be the same
     ASSERT_TRUE(v1 == v2);
