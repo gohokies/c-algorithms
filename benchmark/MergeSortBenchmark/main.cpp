@@ -7,9 +7,9 @@
 
 using namespace Benchmark;
 
-static int compare_uint32(const void* lhs, const void* rhs)
+static bool compare_uint32(const void* lhs, const void* rhs)
 {
-    return Benchmark::Compare<uint32_t>(lhs, rhs);
+    return *static_cast<const uint32_t*>(lhs) < *static_cast<const uint32_t*>(rhs);
 }
 
 static void BM_MergeSortUInt32(benchmark::State& state)

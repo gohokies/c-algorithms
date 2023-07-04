@@ -9,7 +9,7 @@
 using namespace Test;
 
 template<typename T>
-void CompareInsertionSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2, CompareFunc cmp, MoveFunc mv)
+void CompareInsertionSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2, CompareFunc cmp)
 {
     ASSERT_TRUE(v1.size() == v2.size());
 
@@ -17,24 +17,24 @@ void CompareInsertionSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2, Comp
     std::sort(v1.begin(), v1.end(), Comparer<T>(cmp));
 
     // Sort the other array with Radix sort
-    insertion_sort(v2.data(), v2.size(), sizeof(T), cmp, mv);
+    insertion_sort(v2.data(), v2.size(), sizeof(T), cmp);
 
     // Verify the two array should be the same
     ASSERT_TRUE(v1 == v2);
 }
 
-static int compare_uint32(const void* lhs, const void* rhs)
+static bool compare_uint32(const void* lhs, const void* rhs)
 {
     return Compare<uint32_t>(lhs, rhs);
 }
 
-static int compare_uint32_reverse(const void* lhs, const void* rhs)
+static bool compare_uint32_reverse(const void* lhs, const void* rhs)
 {
-    return 0 - Compare<uint32_t>(lhs, rhs);
+    return Compare<uint32_t>(rhs, lhs);
 }
 
 template<typename T>
-void InsertionSortTestAndVerify(T delta, size_t N, CompareFunc cmp, MoveFunc mv)
+void InsertionSortTestAndVerify(T delta, size_t N, CompareFunc cmp)
 {
     std::vector<T> v1, v2;
 
@@ -45,15 +45,15 @@ void InsertionSortTestAndVerify(T delta, size_t N, CompareFunc cmp, MoveFunc mv)
     // Clone the array
     v2 = v1;
 
-    CompareInsertionSortAndStdSort(v1, v2, cmp, mv);
+    CompareInsertionSortAndStdSort(v1, v2, cmp);
 }
 
 TEST(InsertionSortTest, InsertionSortTest_uint32)
 {
-    InsertionSortTestAndVerify<uint32_t>(0, 32, compare_uint32, basic_move);
+    InsertionSortTestAndVerify<uint32_t>(0, 32, compare_uint32);
 }
 
 TEST(InsertionSortTest, InsertionSortTestInDescendOrder_uint32)
 {
-    InsertionSortTestAndVerify<uint32_t>(0, 32, compare_uint32_reverse, basic_move);
+    InsertionSortTestAndVerify<uint32_t>(0, 32, compare_uint32_reverse);
 }

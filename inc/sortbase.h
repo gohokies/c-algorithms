@@ -5,8 +5,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include <stdbool.h>
 
-typedef int (*CompareFunc)(const void* l, const void* ri);
+typedef bool (*CompareFunc)(const void* l, const void* ri);
+typedef int (*CompareFunc3Way)(const void* l, const void* ri);
 typedef void (*SwapFunc)(void* l, void* r, size_t size);
 typedef void (*MoveFunc)(void* dst, void* src, size_t size);
 

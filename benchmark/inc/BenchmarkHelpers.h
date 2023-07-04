@@ -8,12 +8,9 @@
 namespace Benchmark
 {
     template<typename T>
-    inline int Compare(const void* lhs, const void* rhs)
+    inline bool Compare(const void* lhs, const void* rhs)
     {
-        const T* l = static_cast<const T*>(lhs); 
-        const T* r = static_cast<const T*>(rhs);
-        if (*l == *r) return 0; 
-        return (*l < *r) ? -1 : 1;
+        return *static_cast<const T*>(lhs) < *static_cast<const T*>(rhs);
     }
 
     template<typename T>

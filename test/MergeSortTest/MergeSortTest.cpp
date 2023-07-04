@@ -45,14 +45,14 @@ void SortTestAndVerify(Sort sort, T delta, size_t N, CompareFunc cmp)
     CompareSortAndStdSort(sort, v1, v2, cmp);
 }
 
-static int compare_uint32(const void* lhs, const void* rhs)
+static bool compare_uint32(const void* lhs, const void* rhs)
 {
     return Compare<uint32_t>(lhs, rhs);
 }
 
-static int compare_uint32_reverse(const void* lhs, const void* rhs)
+static bool compare_uint32_reverse(const void* lhs, const void* rhs)
 {
-    return 0 - Compare<uint32_t>(lhs, rhs);
+    return  Compare<uint32_t>(rhs, lhs);
 }
 
 TEST(MergeSortTest, MergeSortTest_uint32)

@@ -32,7 +32,7 @@ static void _merge(
     uint8_t* p2 = pMid;
     while (p1 < pMid && p2 < pEnd)
     {
-        if (context->compare(p1, p2) < 0)
+        if (context->compare(p1, p2))
         {
             memcpy(pBuffer, p1, itemsize);
             p1 += itemsize;
@@ -76,7 +76,7 @@ static int _merge_sort(
 
     if (nitems <= kInsertSortThreshold)
     {
-        return insertion_sort(base, nitems, itemsize, context->compare, basic_move);
+        return insertion_sort(base, nitems, itemsize, context->compare);
     }
 
     ret = _merge_sort(context, base, itemsize, nl, buffer);
@@ -105,7 +105,7 @@ static int _quad_sort(
     // Switch to insertion sort threshold.
     if (nitems <= kInsertSortThreshold)
     {
-        return insertion_sort(base, nitems, itemsize, context->compare, basic_move);
+        return insertion_sort(base, nitems, itemsize, context->compare);
     }
 
     // Divide source items to 4 parts, and sort each of them.
@@ -148,7 +148,7 @@ int merge_sort(
     // Switch to insertion sort threshold.
     if (nitems < kInsertSortThreshold)
     {
-        return insertion_sort(base, nitems, size, compare, basic_move);
+        return insertion_sort(base, nitems, size, compare);
     }
 
     int allocated = 0;
@@ -181,7 +181,7 @@ int quad_sort(
     // Switch to insertion sort threshold.
     if (nitems < kInsertSortThreshold)
     {
-        return insertion_sort(base, nitems, size, compare, basic_move);
+        return insertion_sort(base, nitems, size, compare);
     }
 
     int res = 0;

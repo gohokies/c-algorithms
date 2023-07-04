@@ -227,46 +227,34 @@ template<>
 class RadixTraits<std::wstring, false> : public RadixTraitsString<std::wstring, false, wchar_t>{};
 */
 
-static inline int compare_uint32(const void* lhs, const void* rhs)
+static inline bool compare_uint32(const void* lhs, const void* rhs)
 {
-    uint32_t l = *((uint32_t*)lhs);
-    uint32_t r = *((uint32_t*)rhs);
-    return (l < r) ? -1 : (l == r ? 0 : 1);
+    return *((uint32_t*)lhs) < *((uint32_t*)rhs);
 }
 
-static inline int compare_int32(const void* lhs, const void* rhs)
+static inline bool compare_int32(const void* lhs, const void* rhs)
 {
-    int32_t l = *((int32_t*)lhs);
-    int32_t r = *((int32_t*)rhs);
-    return (l < r) ? -1 : (l == r ? 0 : 1);
+    return *((int32_t*)lhs) < *((int32_t*)rhs);
 }
 
-static inline int compare_uint64(const void* lhs, const void* rhs)
+static inline bool compare_uint64(const void* lhs, const void* rhs)
 {
-    uint64_t l = *((uint64_t*)lhs);
-    uint64_t r = *((uint64_t*)rhs);
-    return (l < r) ? -1 : (l == r ? 0 : 1);
+    return *((uint64_t*)lhs) < *((uint64_t*)rhs);
 }
 
-static inline int compare_int64(const void* lhs, const void* rhs)
+static inline bool compare_int64(const void* lhs, const void* rhs)
 {
-    int64_t l = *((int64_t*)lhs);
-    int64_t r = *((int64_t*)rhs);
-    return (l < r) ? -1 : (l == r ? 0 : 1);
+    return *((int64_t*)lhs) < *((int64_t*)rhs);
 }
 
-static inline int compare_float(const void* lhs, const void* rhs)
+static inline bool compare_float(const void* lhs, const void* rhs)
 {
-    float l = *((float*)lhs);
-    float r = *((float*)rhs);
-    return (l < r) ? -1 : (l == r ? 0 : 1);
+    return *((float*)lhs) < *((float*)rhs);
 }
 
-static inline int compare_double(const void* lhs, const void* rhs)
+static inline bool compare_double(const void* lhs, const void* rhs)
 {
-    double l = *((double *)lhs);
-    double r = *((double *)rhs);
-    return (l < r) ? -1 : (l == r ? 0 : 1);
+    return *((double*)lhs) < *((double*)rhs);
 }
 
 static CompareFunc get_compare_func(RadixType type)
@@ -320,7 +308,7 @@ static int _radix_sort(struct SortContext* context, void* base, size_t nitems, s
     // Switch to insertion sort threshold.
     if (nitems <= kInsertSortThreshold)
     {
-        return insertion_sort(base, nitems, sizeElem, context->compare, basic_move);
+        return insertion_sort(base, nitems, sizeElem, context->compare);
     }
 
     // Count items for each bin.
