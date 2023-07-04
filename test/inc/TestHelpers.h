@@ -4,9 +4,24 @@
 #include <algorithm>
 #include <random>
 #include <string>
+#include "sortbase.h"
 
 namespace Test
 {
+    template<typename T>
+    struct Comparer
+    {
+    private:
+        CompareFunc _cmp;
+    public:
+        Comparer(CompareFunc cmp) : _cmp(cmp) {}
+
+        constexpr bool operator()(const T& lhs, const T& rhs) const
+        {
+            return _cmp(&lhs, &rhs) < 0;
+        }
+    };
+
     template<typename T>
     inline int Compare(const void* lhs, const void* rhs)
     {

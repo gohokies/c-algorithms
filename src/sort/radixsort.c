@@ -418,20 +418,26 @@ int radix_sort_type_array(void* base, size_t nitems, size_t sizeElem, RadixType 
 int radix_sort(void *base, size_t nitems, size_t sizeElem, RadixKey* key, CompareFunc compare)
 {
     int res = 0;
+    uint8_t buffer[256];
 
     struct SortContext context;
     size_t vbase = (size_t)base;
 
-    // If no need to sort, return.
+    // If no need to sort, early return.
     if (nitems < 2) return 0;
 
     context.compare = compare;
     context.swaptype = (vbase % sizeof(size_t) == 0 && sizeElem % sizeof(size_t) == 0) ? Align : Raw;
-    context.buffer = malloc(sizeElem);
-
-    if (context.buffer == NULL) return -1;
+    context.buffer = buffer;
+    if (sizeElem > sizeof(buffer))
+    {
+        context.buffer = malloc(sizeElem);
+        if (context.buffer == NULL) return -1;
+    }
 
     res = _radix_sort(&context, base, nitems, sizeElem, key, 0);
-    if (context.buffer != NULL) free(context.buffer);
+
+    if (context.buffer != buffer) free(context.buffer);
+
     return res;
 }

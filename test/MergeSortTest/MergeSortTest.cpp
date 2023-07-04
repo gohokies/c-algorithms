@@ -11,53 +11,27 @@ typedef int (*Sort)(
     size_t items,
     size_t size,
     CompareFunc compare,
-    SwapFunc swap,
     void* buffer
     );
 
 template<typename T>
-void CompareSortAndStdSort(Sort sort, std::vector<T> &v1, std::vector<T> &v2, CompareFunc cmp, SwapFunc swap)
+void CompareSortAndStdSort(Sort sort, std::vector<T> &v1, std::vector<T> &v2, CompareFunc cmp)
 {
-    struct Comparer
-    {
-    private:
-        CompareFunc _cmp;
-    public:
-        Comparer(CompareFunc cmp) : _cmp(cmp) {}
-
-        constexpr bool operator()(const T& lhs, const T& rhs) const
-        {
-            return _cmp(&lhs, &rhs) < 0;
-        }
-    };
-
     ASSERT_TRUE(v1.size() == v2.size());
 
     // Sort one array with std::sort
-    std::sort(v1.begin(), v1.end()/*, Comparer(cmp)*/);
+    std::sort(v1.begin(), v1.end(), Comparer<T>(cmp));
 
     // Sort the other array with Radix sort
     std::vector<T> swapBuffer(v2.size());
-    sort(v2.data(), v2.size(), sizeof(T), cmp, swap, swapBuffer.data());
+    sort(v2.data(), v2.size(), sizeof(T), cmp, swapBuffer.data());
 
     // Verify the two array should be the same
     ASSERT_TRUE(v1 == v2);
 }
 
-static int compare_uint32(const void* lhs, const void* rhs)
-{
-    return Compare<uint32_t>(lhs, rhs);
-}
-
-static void swap_uint32(void* lhs, void* rhs, size_t size)
-{
-    assert(size == sizeof(uint32_t));
-
-    Swap<uint32_t>(lhs, rhs);
-}
-
 template<typename T>
-void SortTestAndVerify(Sort sort, T delta, size_t N, CompareFunc cmp, SwapFunc swap)
+void SortTestAndVerify(Sort sort, T delta, size_t N, CompareFunc cmp)
 {
     std::vector<T> v1, v2;
 
@@ -68,15 +42,35 @@ void SortTestAndVerify(Sort sort, T delta, size_t N, CompareFunc cmp, SwapFunc s
     // Clone the array
     v2 = v1;
 
-    CompareSortAndStdSort(sort, v1, v2, cmp, swap);
+    CompareSortAndStdSort(sort, v1, v2, cmp);
+}
+
+static int compare_uint32(const void* lhs, const void* rhs)
+{
+    return Compare<uint32_t>(lhs, rhs);
+}
+
+static int compare_uint32_reverse(const void* lhs, const void* rhs)
+{
+    return 0 - Compare<uint32_t>(lhs, rhs);
 }
 
 TEST(MergeSortTest, MergeSortTest_uint32)
 {
-    SortTestAndVerify<uint32_t>(merge_sort, 0, 8192, compare_uint32, swap_uint32);
+    SortTestAndVerify<uint32_t>(merge_sort, 0, 4096, compare_uint32);
+}
+
+TEST(MergeSortTest, MergeSortTestInDescendOrder_uint32)
+{
+    SortTestAndVerify<uint32_t>(merge_sort, 0, 4096, compare_uint32_reverse);
 }
 
 TEST(QuadSortTest, QuadSortTest_uint32)
 {
-    SortTestAndVerify<uint32_t>(quad_sort, 0, 4096, compare_uint32, swap_uint32);
+    SortTestAndVerify<uint32_t>(quad_sort, 0, 4096, compare_uint32);
+}
+
+TEST(QuadSortTest, QuadSortTestInDescendOrder_uint32)
+{
+    SortTestAndVerify<uint32_t>(quad_sort, 0, 4096, compare_uint32_reverse);
 }

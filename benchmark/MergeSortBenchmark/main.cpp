@@ -7,24 +7,9 @@
 
 using namespace Benchmark;
 
-typedef int (*Sort)(
-    void *base,
-    size_t items,
-    size_t size,
-    CompareFunc compare,
-    SwapFunc swap,
-    void* buffer
-    );
-
 static int compare_uint32(const void* lhs, const void* rhs)
 {
     return Benchmark::Compare<uint32_t>(lhs, rhs);
-}
-
-static void swap_uint32(void* lhs, void* rhs, size_t size)
-{
-    assert(size == sizeof(uint32_t));
-    Benchmark::Swap<uint32_t>(lhs, rhs);
 }
 
 static void BM_MergeSortUInt32(benchmark::State& state)
@@ -43,7 +28,7 @@ static void BM_MergeSortUInt32(benchmark::State& state)
 
         state.ResumeTiming();
         // Sort
-        merge_sort(v.data(), v.size(), sizeof(v[0]), compare_uint32, swap_uint32, buffer.data());
+        merge_sort(v.data(), v.size(), sizeof(v[0]), compare_uint32, buffer.data());
     }
 }
 
@@ -63,7 +48,7 @@ static void BM_QuadSortUInt32(benchmark::State& state)
 
         state.ResumeTiming();
         // Sort
-        quad_sort(v.data(), v.size(), sizeof(v[0]), compare_uint32, swap_uint32, buffer.data());
+        quad_sort(v.data(), v.size(), sizeof(v[0]), compare_uint32, buffer.data());
     }
 }
 

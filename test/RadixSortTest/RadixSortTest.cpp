@@ -12,7 +12,7 @@ void CompareRadixSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2, RadixTyp
     ASSERT_TRUE(v1.size() == v2.size());
 
     // Sort one array with std::sort
-    std::sort(v1.begin(), v1.end()/*, Comparer(cmp)*/);
+    std::sort(v1.begin(), v1.end());
 
     // Sort the other array with Radix sort
     radix_sort_type_array(v2.data(), v2.size(), sizeof(T), type);

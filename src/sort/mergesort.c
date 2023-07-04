@@ -140,7 +140,6 @@ int merge_sort(
     size_t nitems,
     size_t size,
     CompareFunc compare,
-    SwapFunc swap,
     void* buffer
     )
 {
@@ -176,7 +175,6 @@ int quad_sort(
     size_t nitems,
     size_t size,
     CompareFunc compare,
-    SwapFunc swap,
     void* buffer
     )
 {
