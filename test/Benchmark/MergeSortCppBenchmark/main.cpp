@@ -2,14 +2,14 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
-#include "BenchmarkHelpers.h"
+#include "TestHelpers.h"
 #include "merge_sort.hpp"
 
-using namespace Benchmark;
+using namespace Test;
 
 static bool compare_uint32(const void* lhs, const void* rhs)
 {
-    return Benchmark::Compare<uint32_t>(lhs, rhs);
+    return Compare<uint32_t>(lhs, rhs);
 }
 
 static void BM_MergeSortCppUInt32(benchmark::State& state)

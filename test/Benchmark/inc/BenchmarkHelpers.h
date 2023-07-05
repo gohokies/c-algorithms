@@ -5,12 +5,34 @@
 #include <random>
 #include <string>
 
+#include "sortbase.h"
+
 namespace Benchmark
 {
+    template<typename T>
+    struct Comparer
+    {
+    private:
+        CompareFunc _cmp;
+    public:
+        Comparer(CompareFunc cmp) : _cmp(cmp) {}
+
+        constexpr bool operator()(const T& lhs, const T& rhs) const
+        {
+            return _cmp(&lhs, &rhs);
+        }
+    };
+
     template<typename T>
     inline bool Compare(const void* lhs, const void* rhs)
     {
         return *static_cast<const T*>(lhs) < *static_cast<const T*>(rhs);
+    }
+
+    template<typename T>
+    inline bool ReverseCompare(const void* lhs, const void* rhs)
+    {
+        return *static_cast<const T*>(rhs) < *static_cast<const T*>(lhs);
     }
 
     template<typename T>

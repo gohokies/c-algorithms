@@ -1,6 +1,6 @@
 find_package(benchmark CONFIG REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR}/benchmark/inc)
+include_directories(${PROJECT_SOURCE_DIR}/test/Benchmark/inc)
 
 add_subdirectory(BasicBenchmark)
 add_subdirectory(StdSortBenchmark)

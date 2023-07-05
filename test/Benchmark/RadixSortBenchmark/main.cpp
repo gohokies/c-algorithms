@@ -2,10 +2,10 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
-#include "BenchmarkHelpers.h"
+#include "TestHelpers.h"
 #include "radixsort.h"
 
-using namespace Benchmark;
+using namespace Test;
 
 template<typename T, RadixType type>
 void BM_RadixSort(benchmark::State& state)

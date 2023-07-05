@@ -11,12 +11,51 @@
 
 static const size_t kInsertSortThreshold = 16;
 
-static void _merge(
-    struct SortContext* context,
+#define _MERGE_TO(Type, Base, Mid, Items, Cmp, Buffer)  \
+{   Type* pBase = (Type*)base;                          \
+    Type* pMid = pBase + Mid;                           \
+    Type* pEnd = pBase + Items;                         \
+    Type* pBuffer = (Type*)Buffer;                      \
+    Type* p1 = pBase;                                   \
+    Type* p2 = pMid;                                    \
+    while(p1 < pMid && p2 < pEnd){                      \
+        if(Cmp(p1,p2))                                  \
+            *pBuffer++=*p1++;                           \
+        else                                            \
+            *pBuffer++=*p2++;                           \
+    }                                                   \
+    while(p1 < pMid){ *pBuffer++ = *p1++; }             \
+    while(p2 < pEnd){ *pBuffer++ = *p2++; }             \
+}
+
+static inline void _merge_s4(
+    void *base,
+    size_t mid,
+    size_t nitems,
+    CompareFunc cmp, 
+    void* buffer
+    )
+{
+    _MERGE_TO(uint32_t, base, mid, nitems, cmp, buffer);
+}
+
+static inline void _merge_s8(
+    void *base,
+    size_t mid,
+    size_t nitems,
+    CompareFunc cmp, 
+    void* buffer
+    )
+{
+    _MERGE_TO(uint64_t, base, mid, nitems, cmp, buffer);
+}
+
+static void _merge_generic(
     void *base,
     size_t itemsize,
     size_t mid,
     size_t nitems,
+    CompareFunc cmp,
     void* buffer
     )
 {
@@ -32,69 +71,80 @@ static void _merge(
     uint8_t* p2 = pMid;
     while (p1 < pMid && p2 < pEnd)
     {
-        if (context->compare(p1, p2))
+        if (cmp(p1, p2))
         {
-            memcpy(pBuffer, p1, itemsize);
-            p1 += itemsize;
+            memcpy(pBuffer, p1, itemsize); p1 += itemsize;
         }
         else
         {
-            memcpy(pBuffer, p2, itemsize);
-            p2 += itemsize;
+            memcpy(pBuffer, p2, itemsize); p2 += itemsize;
         }
 
         pBuffer += itemsize;
     }
 
-    while (p1 < pMid)
-    { 
-        memcpy(pBuffer, p1, itemsize);
-        pBuffer += itemsize;
-        p1 += itemsize;
-    }
+    while(p1 < pMid){ memcpy(pBuffer, p1, itemsize); pBuffer += itemsize; p1 += itemsize; }
 
-    while (p2 < pEnd)
+    while(p2 < pEnd){ memcpy(pBuffer, p2, itemsize); pBuffer += itemsize; p2 += itemsize; }
+}
+
+static inline void _merge(
+    void *base,
+    size_t itemsize,
+    size_t mid,
+    size_t nitems,
+    CompareFunc cmp,
+    void* buffer
+    )
+{
+    switch(itemsize)
     {
-        memcpy(pBuffer, p2, itemsize);
-        pBuffer += itemsize;
-        p2 += itemsize;
+        case 4:
+            _merge_s4(base, mid, nitems, cmp, buffer);
+            break;
+        case 8:
+            _merge_s8(base, mid, nitems, cmp, buffer);
+            break;
+        default:
+            _merge_generic(base, itemsize, mid, nitems, cmp, buffer);
+            break;
     }
 }
 
 static int _merge_sort(
-    struct SortContext* context,
     void *base,
     size_t itemsize,
     size_t nitems,
+    CompareFunc cmp,
     void* buffer
     )
 {
     int ret = 0;
-    size_t nl = nitems >> 1;
 
     if (nitems < 2) return 0;
 
     if (nitems <= kInsertSortThreshold)
     {
-        return insertion_sort(base, nitems, itemsize, context->compare);
+        return insertion_sort(base, nitems, itemsize, cmp);
     }
 
-    ret = _merge_sort(context, base, itemsize, nl, buffer);
+    size_t nl = nitems >> 1;
+    ret = _merge_sort(base, itemsize, nl, cmp, buffer);
     if (ret != 0) return ret;
-    ret = _merge_sort(context, base + nl * itemsize, itemsize, nitems - nl, buffer + nl * itemsize); 
+    ret = _merge_sort(base + nl * itemsize, itemsize, nitems - nl, cmp, buffer + nl * itemsize); 
     if (ret != 0) return ret;
 
-    _merge(context, base, itemsize, nl, nitems, buffer);
+    _merge(base, itemsize, nl, nitems, cmp, buffer);
     memcpy(base, buffer, nitems * itemsize);
 
     return 0;
 }
 
 static int _quad_sort(
-    struct SortContext* context,
     void *base,
     size_t itemsize,
     size_t nitems,
+    CompareFunc cmp,
     void* buffer
     )
 {
@@ -105,7 +155,7 @@ static int _quad_sort(
     // Switch to insertion sort threshold.
     if (nitems <= kInsertSortThreshold)
     {
-        return insertion_sort(base, nitems, itemsize, context->compare);
+        return insertion_sort(base, nitems, itemsize, cmp);
     }
 
     // Divide source items to 4 parts, and sort each of them.
@@ -116,21 +166,21 @@ static int _quad_sort(
 
     // Left part
     size_t lmid = (mid >> 1);
-    if((r = _quad_sort(context, pBase, itemsize, lmid, pBuffer)) != 0) return r;
+    if((r = _quad_sort(pBase, itemsize, lmid, cmp, pBuffer)) != 0) return r;
     offset = itemsize * lmid;
-    if((r = _quad_sort(context, pBase + offset, itemsize, mid - lmid, pBuffer + offset)) != 0) return r;
+    if((r = _quad_sort(pBase + offset, itemsize, mid - lmid, cmp, pBuffer + offset)) != 0) return r;
     
     // Right part
     size_t rmid = ((nitems - mid) >> 1);
     offset = itemsize * mid;
-    if((r = _quad_sort(context, pBase + offset, itemsize, rmid, pBuffer + offset)) != 0) return r;
+    if((r = _quad_sort(pBase + offset, itemsize, rmid, cmp, pBuffer + offset)) != 0) return r;
     offset += rmid * itemsize;
-    if((r = _quad_sort(context, pBase + offset, itemsize, nitems - mid - rmid, pBuffer + offset)) != 0) return r;
+    if((r = _quad_sort(pBase + offset, itemsize, nitems - mid - rmid, cmp, pBuffer + offset)) != 0) return r;
 
     // Merge 4 sorted parts to auxiliray array, and merge back in place. 
-    _merge(context, pBase, itemsize, lmid, mid, pBuffer);
-    _merge(context, pBase + mid * itemsize, itemsize, rmid, nitems - mid, pBuffer + mid * itemsize);
-    _merge(context, pBuffer, itemsize, mid, nitems, pBase);
+    _merge(pBase, itemsize, lmid, mid, cmp, pBuffer);
+    _merge(pBase + mid * itemsize, itemsize, rmid, nitems - mid, cmp, pBuffer + mid * itemsize);
+    _merge(pBuffer, itemsize, mid, nitems, cmp, pBase);
 
     return r;
 }
@@ -151,21 +201,16 @@ int merge_sort(
         return insertion_sort(base, nitems, size, compare);
     }
 
-    int allocated = 0;
-    if (buffer == NULL)
+    uint8_t* pBuffer = (uint8_t*)buffer;
+    if(pBuffer == NULL)
     {
-        buffer = malloc(nitems * size);
-        if (buffer == NULL) return -1;
-        allocated = 1;
+        pBuffer = malloc(nitems * size);
+        if(pBuffer == NULL) return -1;
     }
 
-    struct SortContext context;
-    context.compare = compare;
-    context.buffer = NULL;
+    res = _merge_sort(base, size, nitems, compare, pBuffer); 
 
-    res = _merge_sort(&context, base, size, nitems, buffer); 
-
-    if(allocated) free(buffer);
+    if(pBuffer != buffer) free(pBuffer);
     
     return res;
 }
@@ -178,29 +223,24 @@ int quad_sort(
     void* buffer
     )
 {
+    int res = 0;
+
     // Switch to insertion sort threshold.
     if (nitems < kInsertSortThreshold)
     {
         return insertion_sort(base, nitems, size, compare);
     }
 
-    int res = 0;
-    int allocated = 0;
-    struct SortContext context;
-
-    if (buffer == NULL)
+    uint8_t* pBuffer = (uint8_t*)buffer;
+    if (pBuffer == NULL)
     {
-        buffer = malloc(nitems * size);
-        if (buffer == NULL) return -1;
-        allocated = 1;
+        pBuffer = malloc(nitems * size);
+        if (pBuffer == NULL) return -1;
     }
 
-    context.compare = compare;
-    context.buffer = NULL;
+    res = _quad_sort(base, size, nitems, compare, pBuffer); 
 
-    res = _quad_sort(&context, base, size, nitems, buffer); 
-
-    if(allocated) free(buffer);
+    if(pBuffer != buffer) free(pBuffer);
     
     return res;
 }

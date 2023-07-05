@@ -2,10 +2,10 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
-#include "BenchmarkHelpers.h"
+#include "TestHelpers.h"
 #include "mergesort.h"
 
-using namespace Benchmark;
+using namespace Test;
 
 static bool compare_uint32(const void* lhs, const void* rhs)
 {

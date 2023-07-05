@@ -14,6 +14,13 @@ static const size_t kShifts32[4] = {24, 16, 8, 0};
 static const size_t kShifts64[8] = {56, 48, 40, 32, 24, 16, 8, 0};
 static const uint8_t kOrderMasks[2] = {0xFF, 0};
 
+struct RadixSortContext
+{
+    CompareFunc compare;
+    swap_type swaptype;
+    uint8_t* buffer;
+};
+
 static inline uint8_t radix_func_uint8(void* elem, size_t kth)
 {
     assert(kth == 0);
@@ -298,7 +305,7 @@ static RadixKey get_radix_key(RadixType type)
     return key;
 }
 
-static int _radix_sort(struct SortContext* context, void* base, size_t nitems, size_t sizeElem, RadixKey* key, size_t kth)
+static int _radix_sort(struct RadixSortContext* context, void* base, size_t nitems, size_t sizeElem, RadixKey* key, size_t kth)
 {
     static const size_t kInsertSortThreshold = 16;
 
@@ -408,7 +415,7 @@ int radix_sort(void *base, size_t nitems, size_t sizeElem, RadixKey* key, Compar
     int res = 0;
     uint8_t buffer[256];
 
-    struct SortContext context;
+    struct RadixSortContext context;
     size_t vbase = (size_t)base;
 
     // If no need to sort, early return.
