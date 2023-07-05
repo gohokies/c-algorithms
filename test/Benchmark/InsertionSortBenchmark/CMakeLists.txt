@@ -1,0 +1,3 @@
+add_executable(InsertionSortBenchmark main.cpp)
+
+target_link_libraries(InsertionSortBenchmark sortlib benchmark::benchmark)
