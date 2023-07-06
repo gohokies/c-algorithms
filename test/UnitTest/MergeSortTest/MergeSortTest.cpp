@@ -1,142 +1,153 @@
-#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
 
-#include "mergesort.h"
 #include "gtest/gtest.h"
+#include "merge_sort.hpp"
 #include "TestHelpers.h"
 
-using namespace Test;
+using namespace std;
+using namespace algorithms;
 
-typedef int (*Sort)(
-    void *base,
-    size_t items,
-    size_t size,
-    CompareFunc compare,
-    void* buffer
-    );
-
-template<typename T>
-void CompareSortAndStdSort(Sort sort, std::vector<T> &v1, std::vector<T> &v2, CompareFunc cmp)
-{
-    ASSERT_TRUE(v1.size() == v2.size());
-
-    // Sort one array with std::sort
-    std::sort(v1.begin(), v1.end(), Comparer<T>(cmp));
-
-    // Sort the other array with Radix sort
-    std::vector<T> swapBuffer(v2.size());
-    sort(v2.data(), v2.size(), sizeof(T), cmp, swapBuffer.data());
-
-    // Verify the two array should be the same
-    ASSERT_TRUE(v1 == v2);
-}
-
-template<typename T>
-void SortTestAndVerify(Sort sort, T delta, size_t N, CompareFunc cmp)
+template<typename T, bool ascend, size_t N>
+void MergeSortTestAndVerify(T delta)
 {
     std::vector<T> v1, v2;
 
     // Fill array
     v1.resize(N);
-    fill_random_values<T>(v1.data(), v1.size(), delta);
+    Test::fill_random_values<T>(v1.data(), v1.size(), delta);
 
     // Clone the array
     v2 = v1;
 
-    CompareSortAndStdSort(sort, v1, v2, cmp);
+    if (ascend)
+    {
+        // Sort one array with std::sort
+        std::sort(v1.begin(), v1.end(), std::less<T>());
+
+        // Sort the other array with insertion sort
+        algorithms::merge_sort(v2.begin(), v2.end(), std::less<T>());
+    }
+    else
+    {
+        // Sort one array with std::sort in descending order
+        std::sort(v1.begin(), v1.end(), std::greater_equal<T>());
+
+        // Sort the other array with insertion sort in descending order
+        algorithms::merge_sort(v2.begin(), v2.end(), std::greater_equal<T>());
+    }
+
+    // Verify the two array should be the same
+    ASSERT_TRUE(v1 == v2);
 }
 
-static bool compare_uint32(const void* lhs, const void* rhs)
+template<typename T, bool ascend, size_t N>
+void MergeSortInplaceTestAndVerify(T delta)
 {
-    return Compare<uint32_t>(lhs, rhs);
+    std::vector<T> v1, v2;
+
+    // Fill array
+    v1.resize(N);
+    Test::fill_random_values<T>(v1.data(), v1.size(), delta);
+
+    // Clone the array
+    v2 = v1;
+
+    if (ascend)
+    {
+        // Sort one array with std::sort
+        std::sort(v1.begin(), v1.end(), std::less<T>());
+
+        // Sort the other array with insertion sort
+        algorithms::merge_sort_inplace(v2.begin(), v2.end(), std::less<T>());
+    }
+    else
+    {
+        // Sort one array with std::sort in descending order
+        std::sort(v1.begin(), v1.end(), std::greater_equal<T>());
+
+        // Sort the other array with insertion sort in descending order
+        algorithms::merge_sort_inplace(v2.begin(), v2.end(), std::greater_equal<T>());
+    }
+
+    // Verify the two array should be the same
+    ASSERT_TRUE(v1 == v2);
 }
 
-static bool compare_uint32_reverse(const void* lhs, const void* rhs)
+//
+// Test unsigned integers
+//
+TEST(MergeSortTest, MergeSortUint32)
 {
-    return Compare<uint32_t>(rhs, lhs);
+    MergeSortTestAndVerify<uint32_t, true, 1024>(0);
 }
 
-static bool compare_uint64(const void* lhs, const void* rhs)
+TEST(MergeSortTest, MergeSortUint32InDescendingOrder)
 {
-    return Compare<uint64_t>(lhs, rhs);
+    MergeSortTestAndVerify<uint32_t, false, 1024>(0);
 }
 
-static bool compare_uint64_reverse(const void* lhs, const void* rhs)
+TEST(MergeSortTest, MergeSortUint64)
 {
-    return Compare<uint64_t>(rhs, lhs);
+    MergeSortTestAndVerify<uint64_t, true, 1024>(0);
 }
 
-static bool compare_float(const void* lhs, const void* rhs)
+TEST(MergeSortTest, MergeSortUint64InDescendingOrder)
 {
-    return Compare<float>(lhs, rhs);
+    MergeSortTestAndVerify<uint64_t, false, 1024>(0);
 }
 
-static bool compare_float_reverse(const void* lhs, const void* rhs)
+//
+// Test signed integers
+//
+TEST(MergeSortTest, MergeSortInt32)
 {
-    return Compare<float>(rhs, lhs);
+    MergeSortTestAndVerify<int32_t, true, 1024>(RAND_MAX >> 1);
 }
 
-/////////////////////////////////////////////////////////////
-//  MergeSort Test
-/////////////////////////////////////////////////////////////
-TEST(MergeSortTest, MergeSortTest_uint32)
+TEST(MergeSortTest, MergeSortInt32InDescendingOrder)
 {
-    SortTestAndVerify<uint32_t>(merge_sort, 0, 4096, compare_uint32);
+    MergeSortTestAndVerify<int32_t, false, 1024>(RAND_MAX >> 1);
 }
 
-TEST(MergeSortTest, MergeSortTestInDescendOrder_uint32)
+TEST(MergeSortTest, MergeSortInt64)
 {
-    SortTestAndVerify<uint32_t>(merge_sort, 0, 4096, compare_uint32_reverse);
+    MergeSortTestAndVerify<int64_t, true, 1024>(RAND_MAX >> 1);
 }
 
-TEST(MergeSortTest, MergeSortTest_uint64)
+TEST(MergeSortTest, MergeSortInt64InDescendingOrder)
 {
-    SortTestAndVerify<uint64_t>(merge_sort, 0, 4096, compare_uint64);
+    MergeSortTestAndVerify<int64_t, false, 1024>(RAND_MAX >> 1);
 }
 
-TEST(MergeSortTest, MergeSortTestInDescendOrder_uint64)
+//
+// Test floating points
+//
+TEST(MergeSortTest, MergeSortFloat)
 {
-    SortTestAndVerify<uint64_t>(merge_sort, 0, 4096, compare_uint64_reverse);
+    MergeSortTestAndVerify<float, true, 1024>(static_cast<float>(RAND_MAX >> 1));
 }
 
-TEST(MergeSortTest, MergeSortTest_float)
+TEST(MergeSortTest, MergeSortFloatInDescendingOrder)
 {
-    SortTestAndVerify<float>(merge_sort, 0, 4096, compare_float);
+    MergeSortTestAndVerify<float, false, 1024>(static_cast<float>(RAND_MAX >> 1));
 }
 
-TEST(MergeSortTest, MergeSortTestInDescendOrder_float)
+TEST(MergeSortTest, MergeSortDouble)
 {
-    SortTestAndVerify<float>(merge_sort, 0, 4096, compare_float_reverse);
+    MergeSortTestAndVerify<double, true, 1024>(static_cast<double>(RAND_MAX >> 1));
 }
 
-/////////////////////////////////////////////////////////////
-//  QuadSort Test
-/////////////////////////////////////////////////////////////
-TEST(QuadSortTest, QuadSortTest_uint32)
+TEST(MergeSortTest, MergeSortDoubleInDescendingOrder)
 {
-    SortTestAndVerify<uint32_t>(quad_sort, 0, 4096, compare_uint32);
+    MergeSortTestAndVerify<double, false, 1024>(static_cast<double>(RAND_MAX >> 1));
 }
 
-TEST(QuadSortTest, QuadSortTestInDescendOrder_uint32)
+//
+// Test sorting unsigned integers
+//
+TEST(MergeSortTest, MergeSortInplaceUint32)
 {
-    SortTestAndVerify<uint32_t>(quad_sort, 0, 4096, compare_uint32_reverse);
-}
-
-TEST(QuadSortTest, QuadSortTest_uint64)
-{
-    SortTestAndVerify<uint64_t>(quad_sort, 0, 4096, compare_uint64);
-}
-
-TEST(QuadSortTest, QuadSortTestInDescendOrder_uint64)
-{
-    SortTestAndVerify<uint64_t>(quad_sort, 0, 4096, compare_uint64_reverse);
-}
-
-TEST(QuadSortTest, QuadSortTest_float)
-{
-    SortTestAndVerify<float>(quad_sort, 0, 4096, compare_float);
-}
-
-TEST(QuadSortTest, QuadSortTestInDescendOrder_float)
-{
-    SortTestAndVerify<float>(quad_sort, 0, 4096, compare_float_reverse);
+    MergeSortInplaceTestAndVerify<uint32_t, true, 1024>(0);
 }
