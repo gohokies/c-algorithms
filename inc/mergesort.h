@@ -17,6 +17,8 @@ int merge_sort(
     void* buffer
     );
 
+int merge_sort_uint32(uint32_t* base, size_t nitems, void* buffer);
+
 int quad_sort(
     void *base,
     size_t items,

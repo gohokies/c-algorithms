@@ -3,14 +3,11 @@
 
 #include <benchmark/benchmark.h>
 #include "TestHelpers.h"
-#include "insertionsort.h"
+//#include "insertionsort.h"
+#include "insertion_sort.hpp"
 
 using namespace Test;
 
-static bool compare_uint32(const void* lhs, const void* rhs)
-{
-    return *static_cast<const uint32_t*>(lhs) < *static_cast<const uint32_t*>(rhs);
-}
 
 static void BM_InsertionSort_UInt32(benchmark::State& state)
 {
@@ -28,7 +25,8 @@ static void BM_InsertionSort_UInt32(benchmark::State& state)
 
         state.ResumeTiming();
         // Sort
-        insertion_sort(v.data(), v.size(), sizeof(v[0]), compare_uint32);
+//        insertion_sort_uint32(v.data(), v.size());
+        algorithms::insertion_sort(v.begin(), v.end(), std::less<uint32_t>());
     }
 }
 

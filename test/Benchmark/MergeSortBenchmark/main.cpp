@@ -28,7 +28,8 @@ static void BM_MergeSortUInt32(benchmark::State& state)
 
         state.ResumeTiming();
         // Sort
-        merge_sort(v.data(), v.size(), sizeof(v[0]), compare_uint32, buffer.data());
+        //merge_sort(v.data(), v.size(), sizeof(v[0]), compare_uint32, buffer.data());
+        merge_sort_uint32(v.data(), v.size(), buffer.data());
     }
 }
 

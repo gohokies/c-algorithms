@@ -1,79 +1,129 @@
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
 
 #include "gtest/gtest.h"
-
-#include "insertionsort.h"
+#include "insertion_sort.hpp"
 #include "TestHelpers.h"
 
-#include "sortutils.h"
-
-using namespace Test;
-
-template<typename T>
-void CompareInsertionSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2, CompareFunc cmp)
-{
-    ASSERT_TRUE(v1.size() == v2.size());
-
-    // Sort one array with std::sort
-    std::sort(v1.begin(), v1.end(), Comparer<T>(cmp));
-
-    // Sort the other array with Radix sort
-    insertion_sort(v2.data(), v2.size(), sizeof(T), cmp);
-
-    // Verify the two array should be the same
-    ASSERT_TRUE(v1 == v2);
-}
-
-template<typename T>
-void InsertionSortTestAndVerify(T delta, size_t N, CompareFunc cmp)
+template<typename T, bool ascend>
+void InsertionSortTestAndVerify(size_t N, T delta)
 {
     std::vector<T> v1, v2;
 
     // Fill array
     v1.resize(N);
-    fill_random_values<T>(v1.data(), v1.size(), delta);
+    Test::fill_random_values<T>(v1.data(), v1.size(), delta);
 
     // Clone the array
     v2 = v1;
 
-    CompareInsertionSortAndStdSort(v1, v2, cmp);
+    if (ascend)
+    {
+        // Sort one array with std::sort
+        std::sort(v1.begin(), v1.end(), std::less<T>());
+
+        // Sort the other array with insertion sort
+        algorithms::insertion_sort(v2.begin(), v2.end(), std::less<T>());
+    }
+    else
+    {
+        // Sort one array with std::sort in descending order
+        std::sort(v1.begin(), v1.end(), std::greater_equal<T>());
+
+        // Sort the other array with insertion sort in descending order
+        algorithms::insertion_sort(v2.begin(), v2.end(), std::greater_equal<T>());
+    }
+
+    // Verify the two array should be the same
+    ASSERT_TRUE(v1 == v2);
 }
 
-static bool compare_uint32(const void* lhs, const void* rhs)
+//
+// Test unsigned integers
+//
+TEST(InsertionSortTest, InsertionSortUint8)
 {
-    return Compare<uint32_t>(lhs, rhs);
+    InsertionSortTestAndVerify<uint8_t, true>(256, 0);
 }
 
-static bool compare_uint32_reverse(const void* lhs, const void* rhs)
+TEST(InsertionSortTest, InsertionSortUint8InDescendingOrder)
 {
-    return Compare<uint32_t>(rhs, lhs);
+    InsertionSortTestAndVerify<uint8_t, false>(256, 0);
 }
 
-static bool compare_uint64(const void* lhs, const void* rhs)
+TEST(InsertionSortTest, InsertionSortUint16)
 {
-    return Compare<uint64_t>(lhs, rhs);
+    InsertionSortTestAndVerify<uint16_t, true>(256, 0);
 }
 
-static bool compare_uint64_reverse(const void* lhs, const void* rhs)
+TEST(InsertionSortTest, InsertionSortUint16InDescendingOrder)
 {
-    return Compare<uint64_t>(rhs, lhs);
+    InsertionSortTestAndVerify<uint16_t, false>(256, 0);
 }
 
-TEST(InsertionSortTest, InsertionSortTest_uint32)
+TEST(InsertionSortTest, InsertionSortUint32)
 {
-    InsertionSortTestAndVerify<uint32_t>(0, 32, compare_uint32);
+    InsertionSortTestAndVerify<uint32_t, true>(256, 0);
 }
 
-TEST(InsertionSortTest, InsertionSortTestInDescendOrder_uint32)
+TEST(InsertionSortTest, InsertionSortUint32InDescendingOrder)
 {
-    InsertionSortTestAndVerify<uint32_t>(0, 32, compare_uint32_reverse);
+    InsertionSortTestAndVerify<uint32_t, false>(256, 0);
 }
 
-TEST(InsertionSortTest, InsertionSortTest_uint64)
+TEST(InsertionSortTest, InsertionSortUint64)
 {
-    InsertionSortTestAndVerify<uint64_t>(0, 32, compare_uint64);
+    InsertionSortTestAndVerify<uint64_t, true>(256, 0);
 }
 
-TEST(InsertionSortTest, InsertionSortTestInDescendOrder_uint64)
+TEST(InsertionSortTest, InsertionSortUint64InDescendingOrder)
 {
-    InsertionSortTestAndVerify<uint64_t>(0, 32, compare_uint64_reverse);
+    InsertionSortTestAndVerify<uint64_t, false>(256, 0);
+}
+
+//
+// Test signed integers
+//
+TEST(InsertionSortTest, InsertionSortInt32)
+{
+    InsertionSortTestAndVerify<int32_t, true>(256, RAND_MAX >> 1);
+}
+
+TEST(InsertionSortTest, InsertionSortInt32InDescendingOrder)
+{
+    InsertionSortTestAndVerify<int32_t, false>(256, RAND_MAX >> 1);
+}
+
+TEST(InsertionSortTest, InsertionSortInt64)
+{
+    InsertionSortTestAndVerify<int64_t, true>(256, RAND_MAX >> 1);
+}
+
+TEST(InsertionSortTest, InsertionSortInt64InDescendingOrder)
+{
+    InsertionSortTestAndVerify<int64_t, false>(256, RAND_MAX >> 1);
+}
+
+//
+// Test floating points
+//
+TEST(InsertionSortTest, InsertionSortFloat)
+{
+    InsertionSortTestAndVerify<float, true>(256, static_cast<float>(RAND_MAX >> 1));
+}
+
+TEST(InsertionSortTest, InsertionSortFloatInDescendingOrder)
+{
+    InsertionSortTestAndVerify<float, false>(256, static_cast<float>(RAND_MAX >> 1));
+}
+
+TEST(InsertionSortTest, InsertionSortDouble)
+{
+    InsertionSortTestAndVerify<double, true>(256, static_cast<double>(RAND_MAX >> 1));
+}
+
+TEST(InsertionSortTest, InsertionSortDoubleInDescendingOrder)
+{
+    InsertionSortTestAndVerify<double, false>(256, static_cast<double>(RAND_MAX >> 1));
 }
