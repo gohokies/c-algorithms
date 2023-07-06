@@ -6,7 +6,6 @@ add_subdirectory(BasicBenchmark)
 
 add_subdirectory(InsertionSortBenchmark)
 add_subdirectory(StdSortBenchmark)
-add_subdirectory(MergeSortBenchmark)
 add_subdirectory(RadixSortBenchmark)
 
 add_subdirectory(MergeSortCppBenchmark)

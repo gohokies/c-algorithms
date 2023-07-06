@@ -3,11 +3,7 @@
 
 #include <benchmark/benchmark.h>
 #include "TestHelpers.h"
-//#include "insertionsort.h"
 #include "insertion_sort.hpp"
-
-using namespace Test;
-
 
 static void BM_InsertionSort_UInt32(benchmark::State& state)
 {
@@ -21,11 +17,10 @@ static void BM_InsertionSort_UInt32(benchmark::State& state)
     {
         state.PauseTiming();
         // Fill array
-        fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
         // Sort
-//        insertion_sort_uint32(v.data(), v.size());
         algorithms::insertion_sort(v.begin(), v.end(), std::less<uint32_t>());
     }
 }
