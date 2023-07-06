@@ -1,3 +1,0 @@
-add_executable(MergeSortCppBenchmark main.cpp)
-
-target_link_libraries(MergeSortCppBenchmark benchmark::benchmark)

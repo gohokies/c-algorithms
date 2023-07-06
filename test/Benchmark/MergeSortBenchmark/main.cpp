@@ -24,7 +24,7 @@ static void BM_MergeSortCppUInt32(benchmark::State& state)
     {
         state.PauseTiming();
         // Fill array
-        fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
         // Sort
