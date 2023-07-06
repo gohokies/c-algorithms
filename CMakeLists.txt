@@ -9,6 +9,4 @@ include_directories(${PROJECT_SOURCE_DIR}/inc)
 
 enable_testing()
 
-add_subdirectory(src)
 add_subdirectory(test)
-add_subdirectory(sample)

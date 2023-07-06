@@ -4,8 +4,6 @@
 #include <benchmark/benchmark.h>
 #include "TestHelpers.h"
 
-using namespace Test;
-
 template<typename T>
 static void BM_StdSort(benchmark::State& state)
 {
@@ -16,10 +14,10 @@ static void BM_StdSort(benchmark::State& state)
 
         // Fill array
         v.resize(state.range(0));
-        fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
-        std::sort(v.begin(), v.end(), Comparer<T>(Compare<T>));
+        std::sort(v.begin(), v.end());
     }
 }
 
