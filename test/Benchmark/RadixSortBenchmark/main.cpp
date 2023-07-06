@@ -2,12 +2,11 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
+
 #include "TestHelpers.h"
-#include "radixsort.h"
+#include "radix_sort.hpp"
 
-using namespace Test;
-
-template<typename T, RadixType type>
+template<typename T>
 void BM_RadixSort(benchmark::State& state)
 {
     std::vector<T> v;
@@ -17,41 +16,41 @@ void BM_RadixSort(benchmark::State& state)
 
         // Fill array
         v.resize(state.range(0));
-        fill_random_values<T>(v.data(), v.size(), 0);
+        Test::fill_random_values<T>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
-        radix_sort_type_array(v.data(), v.size(), sizeof(T), type);
+        algorithms::radix_sort(v.begin(), v.end());
     }
 }
 
 static void BM_RadixSortUInt32(benchmark::State& state)
 {
-    BM_RadixSort<uint32_t, t_uint32>(state);
+    BM_RadixSort<uint32_t>(state);
 }
 
 static void BM_RadixSortInt32(benchmark::State& state)
 {
-    BM_RadixSort<int32_t, t_int32>(state);
+    BM_RadixSort<int32_t>(state);
 }
 
 static void BM_RadixSortUInt64(benchmark::State& state)
 {
-    BM_RadixSort<uint64_t, t_uint64>(state);
+    BM_RadixSort<uint64_t>(state);
 }
 
 static void BM_RadixSortInt64(benchmark::State& state)
 {
-    BM_RadixSort<int64_t, t_int64>(state);
+    BM_RadixSort<int64_t>(state);
 }
 
 static void BM_RadixSortFloat(benchmark::State& state)
 {
-    BM_RadixSort<float, t_float>(state);
+    BM_RadixSort<float>(state);
 }
 
 static void BM_RadixSortDouble(benchmark::State& state)
 {
-    BM_RadixSort<double, t_double>(state);
+    BM_RadixSort<double>(state);
 }
 
 // Run the benchmark

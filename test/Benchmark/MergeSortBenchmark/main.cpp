@@ -5,13 +5,6 @@
 #include "TestHelpers.h"
 #include "merge_sort.hpp"
 
-using namespace Test;
-
-static bool compare_uint32(const void* lhs, const void* rhs)
-{
-    return Compare<uint32_t>(lhs, rhs);
-}
-
 static void BM_MergeSortCppUInt32(benchmark::State& state)
 {
     std::vector<uint32_t> v;
