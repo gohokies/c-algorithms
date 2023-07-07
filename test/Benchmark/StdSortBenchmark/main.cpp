@@ -22,7 +22,9 @@ static void BM_StdSort(benchmark::State& state)
 }
 
 static void BM_StdSort_UInt32(benchmark::State& state){ BM_StdSort<uint32_t>(state); }
+static void BM_StdSort_Int32(benchmark::State& state){ BM_StdSort<int32_t>(state); }
 static void BM_StdSort_UInt64(benchmark::State& state){ BM_StdSort<uint64_t>(state); }
+static void BM_StdSort_Int64(benchmark::State& state){ BM_StdSort<int64_t>(state); }
 static void BM_StdSort_Float(benchmark::State& state){ BM_StdSort<float>(state); }
 static void BM_StdSort_Double(benchmark::State& state){ BM_StdSort<double>(state); }
 
@@ -33,7 +35,19 @@ BENCHMARK(BM_StdSort_UInt32)
     ->Args({1<<16})
     ->Args({1<<20});
 
+BENCHMARK(BM_StdSort_Int32)
+    ->Args({1<<8})
+    ->Args({1<<12})
+    ->Args({1<<16})
+    ->Args({1<<20});
+
 BENCHMARK(BM_StdSort_UInt64)
+    ->Args({1<<8})
+    ->Args({1<<12})
+    ->Args({1<<16})
+    ->Args({1<<20});
+
+BENCHMARK(BM_StdSort_Int64)
     ->Args({1<<8})
     ->Args({1<<12})
     ->Args({1<<16})
