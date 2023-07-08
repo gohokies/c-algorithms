@@ -13,33 +13,37 @@
 
 namespace algorithms 
 {
-    /*
     template<typename RandomIt, typename Compare>
-    void _merge_(RandomIt begin, RandomIt mid, RandomIt end, Compare cmp, RandomIt dstBegin)
+    void _merge(RandomIt begin, RandomIt mid, RandomIt end, Compare cmp, RandomIt dstBegin)
     {
-        RandomIt s1 = begin;
-        RandomIt s2 = mid;
-        
-        while(s1 < mid && s2 < end)
+        if (begin == mid || mid == end) return;
+        if (cmp(*(mid-1), *mid)) return;
+
+        // Skip items already inplace.
+        // while(cmp(*begin, *mid)) { ++begin; }
+
+        // Copy left part to buffer
+        RandomIt srcIt = begin;
+        RandomIt dstIt = dstBegin;
+        while(srcIt < mid) { *dstIt++ = std::move(*srcIt++); }
+
+        // Merge
+        while(dstBegin < dstIt && mid < end)
         {
-            if (cmp(*s1, *s2))
+            if (cmp(*dstBegin, *mid))
             {
-                *dstBegin = std::move(*s1);
-                s1++;
+                *begin = std::move(*dstBegin++);
             }
             else
             {
-                *dstBegin = std::move(*s2);
-                s2++;
+                *begin= std::move(*mid++);
             }
 
-            dstBegin++;
+            ++begin;
         }
 
-        while(s1 < mid) { *dstBegin++ = std::move(*s1); s1++; }
-        while(s2 < end) { *dstBegin++ = std::move(*s2); s2++; }
+        std::copy(dstBegin, dstIt, std::copy(mid, end, begin));
     }
-    */
 
     template<typename RandomIt, typename Compare>
     void _merge_sort(RandomIt begin, RandomIt end, Compare cmp, RandomIt auxBegin)
@@ -62,9 +66,9 @@ namespace algorithms
         _merge_sort(begin, mid, cmp, auxBegin);
         _merge_sort(mid, end, cmp, auxmid);
 
-        //_merge_(auxBegin, auxMid, auxBegin + count, cmp, begin);        
-        std::merge(begin, mid, mid, end, auxBegin, cmp);
-        std::move(auxBegin, auxBegin + count, begin);
+        _merge(begin, mid, end, cmp, auxBegin);        
+        // std::merge(begin, mid, mid, end, auxBegin, cmp);
+        // std::move(auxBegin, auxBegin + count, begin);
     }
 
     // Use auxiliry buffer to sort [begin, end). Caller needs to make sure that the 

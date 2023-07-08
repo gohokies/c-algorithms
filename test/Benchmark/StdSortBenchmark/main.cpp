@@ -7,14 +7,14 @@
 template<typename T>
 static void BM_StdSort(benchmark::State& state)
 {
-    std::vector<uint32_t> v;
+    std::vector<T> v;
     for (auto _ : state)
     {
         state.PauseTiming();
 
         // Fill array
         v.resize(state.range(0));
-        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<T>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
         std::sort(v.begin(), v.end());
@@ -24,14 +24,14 @@ static void BM_StdSort(benchmark::State& state)
 template<typename T>
 static void BM_StdStableSort(benchmark::State& state)
 {
-    std::vector<uint32_t> v;
+    std::vector<T> v;
     for (auto _ : state)
     {
         state.PauseTiming();
 
         // Fill array
         v.resize(state.range(0));
-        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<T>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
         std::stable_sort(v.begin(), v.end());
