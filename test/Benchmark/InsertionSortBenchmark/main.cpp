@@ -27,6 +27,13 @@ static void BM_InsertionSort_UInt32(benchmark::State& state)
 
 // Run the benchmark
 BENCHMARK(BM_InsertionSort_UInt32)
+    ->Args({2})
+    ->Args({3})
+    ->Args({4})
+    ->Args({5})
+    ->Args({6})
+    ->Args({7})
+    ->Args({8})
     ->Args({1<<4})
     ->Args({1<<6})
     ->Args({1<<8})

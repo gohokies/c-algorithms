@@ -11,7 +11,7 @@
 
 namespace algorithms 
 {
-    constexpr size_t kInsertSortThreshold = 32;
+    constexpr size_t kInsertSortThreshold = 16;
 
     // Sorts [begin, end) using insertion sort with the given comparison function.
     template<typename RandomIt, typename Compare>

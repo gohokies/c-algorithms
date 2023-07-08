@@ -71,7 +71,7 @@ namespace algorithms
         size_t count = end - begin;
 
         if (count < 2) return;
-        if (count < MinStep)
+        if (count <= MinStep)
         {
             insertion_sort(begin, end, cmp);
             return;
@@ -98,7 +98,7 @@ namespace algorithms
             it = it2;
         }
 
-        // If theer is only one section, return;        
+        // If there is only one section, return;        
         if (d < 2) return;
 
         // Try to block sort

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "gtest/gtest.h"
 
-#include "wiki_sort.hpp"
+#include "block_sort.hpp"
 #include "TestHelpers.h"
 
 using namespace Test;
@@ -15,7 +15,7 @@ void CompareBlockSortAndStdSort(std::vector<T> &v1, std::vector<T> &v2)
     std::sort(v1.begin(), v1.end());
 
     // Sort the other array with block sort
-    Wiki::Sort(v2.begin(), v2.end(), std::less<T>());
+    algorithms::block_sort(v2.begin(), v2.end(), std::less<T>());
 
     // Verify the two array should be the same
     ASSERT_TRUE(v1 == v2);

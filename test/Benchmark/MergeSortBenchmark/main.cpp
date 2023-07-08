@@ -8,14 +8,14 @@
 template<typename T>
 static void BM_MergeSort(benchmark::State& state)
 {
-    std::vector<uint32_t> v;
+    std::vector<T> v;
     for (auto _ : state)
     {
         state.PauseTiming();
 
         // Fill array
         v.resize(state.range(0));
-        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<T>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
         algorithms::merge_sort(v.begin(), v.end());
@@ -25,14 +25,14 @@ static void BM_MergeSort(benchmark::State& state)
 template<typename T>
 static void BM_MergeSortInplace(benchmark::State& state)
 {
-    std::vector<uint32_t> v;
+    std::vector<T> v;
     for (auto _ : state)
     {
         state.PauseTiming();
 
         // Fill array
         v.resize(state.range(0));
-        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<T>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
         algorithms::merge_sort_inplace(v.begin(), v.end());
@@ -42,14 +42,14 @@ static void BM_MergeSortInplace(benchmark::State& state)
 template<typename T>
 static void BM_QuadSort(benchmark::State& state)
 {
-    std::vector<uint32_t> v;
+    std::vector<T> v;
     for (auto _ : state)
     {
         state.PauseTiming();
 
         // Fill array
         v.resize(state.range(0));
-        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<T>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
         algorithms::quad_sort(v.begin(), v.end());

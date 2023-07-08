@@ -50,7 +50,7 @@ namespace algorithms
         if (count < 2) return;
 
         // Switch to insertion sort threshold.
-        if (count < kInsertSortThreshold)
+        if (count <= kInsertSortThreshold)
         {
             insertion_sort(begin, end, cmp);
             return;
@@ -104,7 +104,7 @@ namespace algorithms
         if (count < 2) return;
 
         // Switch to insertion sort threshold.
-        if (count < kInsertSortThreshold)
+        if (count <= kInsertSortThreshold)
         {
             insertion_sort(begin, end, cmp);
             return;
@@ -132,7 +132,7 @@ namespace algorithms
         if (count < 2) return;
 
         // Switch to insertion sort threshold.
-        if (count < kInsertSortThreshold)
+        if (count <= kInsertSortThreshold)
         {
             insertion_sort(begin, end, cmp);
             return;

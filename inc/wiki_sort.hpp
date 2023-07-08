@@ -1,13 +1,3 @@
-/***********************************************************
- WikiSort: a public domain implementation of "Block Sort"
- https://github.com/BonzaiThePenguin/WikiSort
-
- to run:
- clang++ -o WikiSort.x WikiSort.cpp -O3
- (or replace 'clang++' with 'g++')
- ./WikiSort.x
-***********************************************************/
-
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -15,33 +5,6 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
-#include <vector>
-
-// record the number of comparisons and assignments
-// note that this reduces WikiSort's performance when enabled
-#define PROFILE false
-
-// verify that WikiSort is actually correct
-// (this also reduces performance slightly)
-#define VERIFY false
-
-// simulate comparisons that have a bit more overhead than just an inlined (int < int)
-// (so we can tell whether reducing the number of comparisons was worth the added complexity)
-#define SLOW_COMPARISONS false
-
-// if true, test against std::__inplace_stable_sort() rather than std::stable_sort()
-#define TEST_INPLACE false
-
-// whether to give WikiSort a full-size cache, to see how it performs when given more memory
-#define DYNAMIC_CACHE false
-
-
-double Seconds() { return std::clock() * 1.0/CLOCKS_PER_SEC; }
-
-#if PROFILE
-    // global for testing how many comparisons are performed for each sorting algorithm
-    long comparisons, assignments;
-#endif
 
 // structure to represent ranges within the array
 template <typename Iterator>
@@ -61,10 +24,6 @@ struct Range {
     }
 };
 
-// toolbox functions used by the sorter
-
-// 63 -> 32, 64 -> 64, etc.
-// this comes from Hacker's Delight
 template <typename Unsigned>
 Unsigned Hyperfloor(Unsigned value) {
     for (std::size_t i = 1 ; i <= std::numeric_limits<Unsigned>::digits / 2 ; i <<= 1) {
@@ -73,8 +32,6 @@ Unsigned Hyperfloor(Unsigned value) {
     return value - (value >> 1);
 }
 
-// combine a linear search with a binary search to reduce the number of comparisons in situations
-// where have some idea as to how many unique values there are and where the next value might be
 template <typename RandomAccessIterator, typename T, typename Comparison>
 RandomAccessIterator FindFirstForward(RandomAccessIterator first, RandomAccessIterator last,
                                       const T & value, Comparison compare, std::size_t unique) {
@@ -333,45 +290,6 @@ namespace Wiki {
         }
     };
 
-#if DYNAMIC_CACHE
-    // use a class so the memory for the cache is freed when the object goes out of scope,
-    // regardless of whether exceptions were thrown (only needed in the C++ version)
-    template <typename T>
-    class Cache {
-    public:
-        T *cache;
-        std::size_t cache_size;
-
-        ~Cache() {
-            if (cache) delete[] cache;
-        }
-
-        Cache(std::size_t size) {
-            // good choices for the cache size are:
-            // (size + 1)/2 – turns into a full-speed standard merge sort since everything fits into the cache
-            cache_size = (size + 1)/2;
-            cache = new (std::nothrow) T[cache_size];
-            if (cache) return;
-
-            // sqrt((size + 1)/2) + 1 – this will be the size of the A blocks at the largest level of merges,
-            // so a buffer of this size would allow it to skip using internal or in-place merges for anything
-            cache_size = std::sqrt(cache_size) + 1;
-            cache = new (std::nothrow) T[cache_size];
-            if (cache) return;
-
-            // 512 – chosen from careful testing as a good balance between fixed-size memory use and run time
-            if (cache_size > 512) {
-                cache_size = 512;
-                cache = new (std::nothrow) T[cache_size];
-                if (cache) return;
-            }
-
-            // 0 – if the system simply cannot allocate any extra memory whatsoever, no memory works just fine
-            cache_size = 0;
-        }
-    };
-#endif
-
     // bottom-up merge sort combined with an in-place merge algorithm for O(1) memory use
     template <typename RandomAccessIterator, typename Comparison>
     void Sort(RandomAccessIterator first, RandomAccessIterator last, Comparison compare) {
@@ -380,26 +298,8 @@ namespace Wiki {
         typedef typename std::iterator_traits<RandomAccessIterator>::value_type T;
         const std::size_t size = std::distance(first, last);
 
-        // if the array is of size 0, 1, 2, or 3, just sort them like so:
-        if (size < 4) {
-            if (size == 3) {
-                // hard-coded insertion sort
-                if (compare(first[1], first[0])) {
-                    std::iter_swap(first + 0, first + 1);
-                }
-                if (compare(first[2], first[1])) {
-                    std::iter_swap(first + 1, first + 2);
-                    if (compare(first[1], first[0])) {
-                        std::iter_swap(first + 0, first + 1);
-                    }
-                }
-            } else if (size == 2) {
-                // swap the items if they're out of order
-                if (compare(first[1], first[0])) {
-                    std::iter_swap(first + 0, first + 1);
-                }
-            }
-
+        if (size <= 16){
+            InsertionSort(first, last, compare);
             return;
         }
 
@@ -462,18 +362,8 @@ namespace Wiki {
         if (size < 8) return;
 
         // use a small cache to speed up some of the operations
-        #if DYNAMIC_CACHE
-            Cache<T> cache_obj (size);
-            T *cache = cache_obj.cache;
-            const std::size_t cache_size = cache_obj.cache_size;
-        #else
-            // since the cache size is fixed, it's still O(1) memory!
-            // just keep in mind that making it too small ruins the point (nothing will fit into it),
-            // and making it too large also ruins the point (so much for "low memory"!)
-            // removing the cache entirely still gives 75% of the performance of a standard merge
-            const std::size_t cache_size = 512;
-            T cache[cache_size];
-        #endif
+        const std::size_t cache_size = 512;
+        T cache[cache_size];
 
         // then merge sort the higher levels, which can be 8-15, 16-31, 32-63, 64-127, etc.
         while (true) {
@@ -515,6 +405,7 @@ namespace Wiki {
                             std::copy(A2.start, A2.end, cache + A1.length() + B2.length());
                             std::copy(B2.start, B2.end, cache + A1.length());
                         } else if (compare(*B2.start, *(A2.end - 1))) {
+
                             // these two ranges weren't already in order, so merge them into the cache
                             std::merge(A2.start, A2.end, B2.start, B2.end, cache + A1.length(), compare);
                         } else {
@@ -624,6 +515,7 @@ namespace Wiki {
                         pull[pull_index].count = count; \
                         pull[pull_index].from = index; \
                         pull[pull_index].to = _to
+
 
                     // check A for the number of unique values we need to fill an internal buffer
                     // these values will be pulled out to the start of A

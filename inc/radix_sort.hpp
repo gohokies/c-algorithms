@@ -277,7 +277,7 @@ void _radix_sort_(RandomIt begin, RandomIt end, Traits traits, size_t kthDigit, 
     if (countOfItems < 2) return;
 
     // Switch to insertion sort threshold.
-    if (countOfItems < kInsertSortThreshold)
+    if (countOfItems <= kInsertSortThreshold)
     {
         auto func = [&traits](T const &lhs, T const &rhs){ return traits.compare(lhs, rhs); };
         if (leftMost)
