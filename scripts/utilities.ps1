@@ -8,7 +8,7 @@ function GetArch
     if ($Arch -ieq "x86_64"){ return "x64" }
     if ($Arch -ieq "amd64"){ return "x64" }
     if ($Arch -ieq "i386"){ return "x86" }
-    if ($Arch -ieq "aarch"){ return "arm64" }
+    if ($Arch -ieq "aarch64"){ return "arm64" }
     if ($Arch -ieq "arm"){ return "arm" }
     if ($Arch -ieq "armhf"){ return "arm" }
 

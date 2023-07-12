@@ -14,92 +14,6 @@
 namespace algorithms 
 {
     template<typename RandomIt, typename Compare>
-    void _merge(RandomIt begin, RandomIt mid, RandomIt end, Compare cmp, RandomIt dstBegin)
-    {
-        if (begin == mid || mid == end) return;
-        if (cmp(*(mid-1), *mid)) return;
-
-        // Skip items already inplace.
-        // while(cmp(*begin, *mid)) { ++begin; }
-
-        // Copy left part to buffer
-        RandomIt srcIt = begin;
-        RandomIt dstIt = dstBegin;
-        while(srcIt < mid) { *dstIt++ = std::move(*srcIt++); }
-
-        // Merge
-        while(dstBegin < dstIt && mid < end)
-        {
-            if (cmp(*dstBegin, *mid))
-            {
-                *begin = std::move(*dstBegin++);
-            }
-            else
-            {
-                *begin= std::move(*mid++);
-            }
-
-            ++begin;
-        }
-
-        std::copy(dstBegin, dstIt, std::copy(mid, end, begin));
-    }
-
-    template<typename RandomIt, typename Compare>
-    void _merge_sort(RandomIt begin, RandomIt end, Compare cmp, RandomIt auxBegin)
-    {
-        typedef typename std::iterator_traits<RandomIt>::value_type T;
-
-        size_t count = end - begin;
-        if (count < 2) return;
-
-        // Switch to insertion sort threshold.
-        if (count <= kInsertSortThreshold)
-        {
-            insertion_sort(begin, end, cmp);
-            return;
-        }
-
-        // Divide source items to 4 parts, and sort each of them.
-        RandomIt mid = begin + (count >> 1);
-        RandomIt auxmid = auxBegin + (count >> 1);
-        _merge_sort(begin, mid, cmp, auxBegin);
-        _merge_sort(mid, end, cmp, auxmid);
-
-        _merge(begin, mid, end, cmp, auxBegin);        
-        // std::merge(begin, mid, mid, end, auxBegin, cmp);
-        // std::move(auxBegin, auxBegin + count, begin);
-    }
-
-    // Use auxiliry buffer to sort [begin, end). Caller needs to make sure that the 
-    // auxiliry buffer must no less than the number of the items to sort. The
-    // sorted array is in place in [begin, end).
-    template<typename RandomIt, typename Compare>
-    void merge_sort(RandomIt begin, RandomIt end, Compare cmp, RandomIt dstBegin)
-    {
-        _merge_sort(begin, end, cmp, dstBegin);
-    }
-
-    // Allocate auxiliary buffer, the use it to do merge sort.
-    template<typename RandomIt, typename Compare>
-    void merge_sort(RandomIt begin, RandomIt end, Compare cmp)
-    {
-        typedef typename std::iterator_traits<RandomIt>::value_type T;
-        std::vector<T> buffer;
-        size_t count = (end - begin);
-    
-        buffer.resize(count);
-        _merge_sort(begin, end, cmp, buffer.begin());
-    }
-
-    template<typename RandomIt>
-    void merge_sort(RandomIt begin, RandomIt end)
-    {
-        typedef typename std::iterator_traits<RandomIt>::value_type T;
-        merge_sort(begin, end, std::less<T>());
-    }
-
-    template<typename RandomIt, typename Compare>
     void merge_sort_inplace(RandomIt begin, RandomIt end, Compare cmp)
     {
         typedef typename std::iterator_traits<RandomIt>::value_type T;
@@ -127,72 +41,116 @@ namespace algorithms
         typedef typename std::iterator_traits<RandomIt>::value_type T;
         merge_sort_inplace(begin, end, std::less<T>());
     }    
+
     template<typename RandomIt, typename Compare>
-    void _quad_sort(RandomIt begin, RandomIt end, Compare cmp, RandomIt auxBegin)
+    class MergeSorter
     {
+    public:
+        MergeSorter(RandomIt begin, RandomIt end, Compare cmp) : _cmp(cmp)
+        {
+            _buf.resize(kBufferSize);
+            _Sort(begin, end, _buf.begin());
+        }
+    private:
         typedef typename std::iterator_traits<RandomIt>::value_type T;
 
-        size_t count = end - begin;
-        if (count < 2) return;
+        static const size_t kBufferSize = 256; 
+        std::vector<T> _buf;
+        Compare _cmp;
 
-        // Switch to insertion sort threshold.
-        if (count <= kInsertSortThreshold)
+        template<typename RandomIt2>
+        void _Merge(RandomIt begin, RandomIt mid, RandomIt end, RandomIt2 dstBegin)
         {
-            insertion_sort(begin, end, cmp);
-            return;
+            if (begin == mid || mid == end) return;
+            if (_cmp(*(mid-1), *mid)) return;
+
+            // Move left part to buffer
+            RandomIt2 dstEnd = std::move(begin, mid, dstBegin);
+
+            // Merge
+            while(dstBegin < dstEnd && mid < end)
+            {
+                if (_cmp(*dstBegin, *mid))
+                {
+                    *begin = std::move(*dstBegin++);
+                }
+                else
+                {
+                    *begin= std::move(*mid++);
+                }
+
+                ++begin;
+            }
+
+            std::move(dstBegin, dstEnd, std::move(mid, end, begin));
         }
 
-        // Divide source items to 4 parts, and sort each of them.
-        RandomIt mid = begin + (count >> 1);
-        RandomIt auxMid = auxBegin + (count >> 1);
-        size_t lcount = mid - begin;
-        size_t rcount = end - mid;
-        RandomIt lmid = begin + (lcount >> 1);
-        RandomIt rmid = mid + (rcount >> 1);
-        RandomIt aux = auxBegin;
-        _merge_sort(begin, lmid, cmp, aux);
-        aux += lcount >> 1;
-        _merge_sort(lmid, mid, cmp, aux);
-        aux = auxMid;
-        _merge_sort(mid, rmid, cmp, aux);
-        aux += rcount >> 1;
-        _merge_sort(rmid, end, cmp, aux);
+        template<typename BufIt>
+        void _Sort(RandomIt begin, RandomIt end, BufIt auxBegin)
+        {
+            size_t count = std::distance(begin, end);
+            
+            if (count < 2) return;
 
-        // Merge 4 sorted parts to auxiliray array, and merge back in place. 
-        //_merge_(begin, lmid, mid, cmp, auxBegin);
-        //_merge_(mid, rmid, end, cmp, auxMid);
-        //_merge_(auxBegin, auxMid, auxBegin + count, cmp, begin);        
-        std::merge(begin, lmid, lmid, mid, auxBegin, cmp);
-        std::merge(mid, rmid, rmid, end, auxMid, cmp);
-        std::merge(auxBegin, auxMid, auxMid, auxBegin + count, begin, cmp);
-    }
+            // Switch to insertion sort threshold.
+            if (count <= kInsertSortThreshold)
+            {
+                insertion_sort(begin, end, _cmp);
+                return;
+            }
 
-    // Use auxiliry buffer to sort [begin, end). Caller needs to make sure that the 
-    // auxiliry buffer must no less than the number of the items to sort. The
-    // sorted array is in place in [begin, end).
+            size_t nl = count >> 1;
+            size_t nr = count - nl;
+            RandomIt mid = begin + nl;
+            if (count <= kBufferSize)
+            {
+                // Divide source items to 4 parts, and sort each of them.
+                BufIt auxMid = auxBegin + nl;
+                RandomIt lmid = begin + (nl >> 1);
+                RandomIt rmid = mid + (nr >> 1);
+                BufIt aux = auxBegin;
+                _Sort(begin, lmid, aux);
+                aux += nl >> 1;
+                _Sort(lmid, mid, aux);
+                aux = auxMid;
+                _Sort(mid, rmid, aux);
+                aux += nr >> 1;
+                _Sort(rmid, end, aux);
+
+                // Merge 4 sorted parts to auxiliray array, and merge back in place. 
+                //_merge_(begin, lmid, mid, cmp, auxBegin);
+                //_merge_(mid, rmid, end, cmp, auxMid);
+                //_merge_(auxBegin, auxMid, auxBegin + count, cmp, begin);        
+                std::merge(begin, lmid, lmid, mid, auxBegin, _cmp);
+                std::merge(mid, rmid, rmid, end, auxMid, _cmp);
+                std::merge(auxBegin, auxMid, auxMid, auxBegin + count, begin, _cmp);
+            }
+            else if (count + count <= kBufferSize)
+            {
+                _Sort(begin, mid, auxBegin);
+                _Sort(mid, end, auxBegin);
+                _Merge(begin, mid, end, auxBegin);
+            }
+            else
+            {
+                _Sort(begin, mid, auxBegin);
+                _Sort(mid, end, auxBegin);
+                std::inplace_merge(begin, mid, end, _cmp);
+            }
+        }
+    };
+
     template<typename RandomIt, typename Compare>
-    void quad_sort(RandomIt begin, RandomIt end, Compare cmp, RandomIt dstBegin)
+    void merge_sort(RandomIt begin, RandomIt end, Compare cmp)
     {
-        _quad_sort(begin, end, cmp, dstBegin);
-    }
-
-    // Allocate auxiliary buffer, the use it to do merge sort.
-    template<typename RandomIt, typename Compare>
-    void quad_sort(RandomIt begin, RandomIt end, Compare cmp)
-    {
-        typedef typename std::iterator_traits<RandomIt>::value_type T;
-        std::vector<T> buffer;
-        size_t count = (end - begin);
-    
-        buffer.resize(count);
-        _quad_sort(begin, end, cmp, buffer.begin());
+        MergeSorter<RandomIt,Compare> sorter(begin, end, cmp);
     }
 
     template<typename RandomIt>
-    void quad_sort(RandomIt begin, RandomIt end)
+    void merge_sort(RandomIt begin, RandomIt end)
     {
         typedef typename std::iterator_traits<RandomIt>::value_type T;
-        quad_sort(begin, end, std::less<T>());
+        merge_sort(begin, end, std::less<T>());
     }
 }
 

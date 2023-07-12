@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/linuxbuild/test/InsertionSortTest/InsertionSortTest",
+            "program": "${workspaceFolder}/linuxbuild/test/UnitTest/MergeSortTest/MergeSortTest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
