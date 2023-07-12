@@ -85,7 +85,7 @@ class LinuxBuilder : Builder
             throw "Invalid target architecture"
         }
 
-        if (-Not ($Generator -eq "" -Or $Generator -eq "Unix Makefiles" -Or $Generator -eq "Ninja")){
+        if (-Not ($Generator -eq "" -Or $Generator -eq "Unix Makefiles" -Or $Generator -eq "Ninja" -Or $Generator -eq "Ninja Multi-Config")){
             throw "invalid generator"
         }
     }
@@ -101,9 +101,13 @@ class LinuxBuilder : Builder
         $Arch = $this.TargetArch
         $this.BuildParams +=@("-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$Dir/cmake/toolchains/$Arch-linux-gnu.cmake")            
 
-        if (-Not $this.TargetGenerator -eq "")
+        $Generator = $this.TargetGenerator
+        if ($Generator -eq ""){ $Generator = "Ninja Multi-Config" }
+        $this.BuildParams += @("-G", $Generator)
+
+        if ($Generator -eq "Ninja Multi-Config")
         {
-            $this.BuildParams += @("-G", $this.TargetGenerator)
+            $this.MultiConfig = $True
         }
 
         $Config = $this.TargetConfig
