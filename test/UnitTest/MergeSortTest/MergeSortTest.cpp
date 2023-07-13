@@ -32,10 +32,10 @@ void MergeSortTestAndVerify(size_t N, T delta)
     else
     {
         // Sort one array with std::sort in descending order
-        std::sort(v1.begin(), v1.end(), std::greater_equal<T>());
+        std::sort(v1.begin(), v1.end(), std::greater<T>());
 
         // Sort the other array with insertion sort in descending order
-        algorithms::merge_sort(v2.begin(), v2.end(), std::greater_equal<T>());
+        algorithms::merge_sort(v2.begin(), v2.end(), std::greater<T>());
     }
 
     // Verify the two array should be the same
@@ -65,10 +65,10 @@ void MergeSortInplaceTestAndVerify(size_t N, T delta)
     else
     {
         // Sort one array with std::sort in descending order
-        std::sort(v1.begin(), v1.end(), std::greater_equal<T>());
+        std::sort(v1.begin(), v1.end(), std::greater<T>());
 
         // Sort the other array with insertion sort in descending order
-        algorithms::merge_sort_inplace(v2.begin(), v2.end(), std::greater_equal<T>());
+        algorithms::merge_sort_inplace(v2.begin(), v2.end(), std::greater<T>());
     }
 
     // Verify the two array should be the same

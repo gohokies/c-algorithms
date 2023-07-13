@@ -2,10 +2,8 @@ param(
     [String]$Arch="",
     [String]$Platform="",
     [String][ValidateSet("", "Debug", "Release")]$Config="",
-    [String]$Generator="",
-    [Switch]$SkipConfig=$False,
-    [Switch]$SkipBuild=$False
-)
+    [String]$Generator=""
+    )
 
 . $PSScriptRoot/utilities.ps1 
 . $PSScriptRoot/Builder.ps1
@@ -30,5 +28,5 @@ elseif($TargetPlatform -eq "windows"){
 
 $builder.PrepareBuildSetings()
 
-if (-Not $SkipConfig) { $builder.SetupBuild() }
-if (-Not $SkipBuild) { $builder.Build() }
+$builder.SetupBuild()
+$builder.Build()

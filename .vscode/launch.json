@@ -5,10 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "(Windows) Launch",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\build\\test\\UnitTest\\MergeSortTest\\Debug\\MergeSortTest.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/linuxbuild/test/UnitTest/MergeSortTest/MergeSortTest",
+            "program": "${workspaceFolder}/build/test/UnitTest/MergeSortTest/MergeSortTest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

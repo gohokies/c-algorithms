@@ -82,7 +82,7 @@ namespace algorithms
                 ++begin;
             }
 
-            std::move(dstBegin, dstEnd, std::move(mid, end, begin));
+            std::move(dstBegin, dstEnd, begin);
         }
 
         template<typename BufIt>

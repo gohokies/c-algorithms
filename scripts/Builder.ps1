@@ -39,7 +39,7 @@ class Builder
 
         $Config = $this.TargetConfig
         $Root = $this.RootDir
-        $this.BuildDir = "$Root/build/$Triplet"
+        $this.BuildDir = "$Root/build"
     
         $this.BuildParams = @("-S", $this.RootDir, "-B", $this.BuildDir)
 

@@ -58,10 +58,10 @@ TEST(RadixSortTest, RadixSortTest_int64)
 
 TEST(RadixSortTest, RadixSortTest_float)
 {
-    RadixSortTestAndVerify<float>(RAND_MAX >> 1, 4096);
+    RadixSortTestAndVerify<float>(static_cast<float>(RAND_MAX >> 1), 4096);
 }
 
 TEST(RadixSortTest, RadixSortTest_double)
 {
-    RadixSortTestAndVerify<double>(RAND_MAX >> 1, 4096);
+    RadixSortTestAndVerify<double>(static_cast<double>(RAND_MAX >> 1), 4096);
 }

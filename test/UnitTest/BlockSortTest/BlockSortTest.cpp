@@ -58,10 +58,10 @@ TEST(BlockSortTest, BlockSortTest_int64)
 
 TEST(BlockSortTest, BlockSortTest_float)
 {
-    BlockSortTestAndVerify<float>(RAND_MAX >> 1, 4096);
+    BlockSortTestAndVerify<float>(static_cast<float>(RAND_MAX >> 1), 4096);
 }
 
 TEST(BlockSortTest, BlockSortTest_double)
 {
-    BlockSortTestAndVerify<double>(RAND_MAX >> 1, 4096);
+    BlockSortTestAndVerify<double>(static_cast<double>(RAND_MAX >> 1), 4096);
 }
