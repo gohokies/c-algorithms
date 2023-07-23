@@ -118,12 +118,9 @@ namespace algorithms
                 _Sort(rmid, end, aux);
 
                 // Merge 4 sorted parts to auxiliray array, and merge back in place. 
-                //_merge_(begin, lmid, mid, cmp, auxBegin);
-                //_merge_(mid, rmid, end, cmp, auxMid);
-                //_merge_(auxBegin, auxMid, auxBegin + count, cmp, begin);        
-                std::merge(begin, lmid, lmid, mid, auxBegin, _cmp);
-                std::merge(mid, rmid, rmid, end, auxMid, _cmp);
-                std::merge(auxBegin, auxMid, auxMid, auxBegin + count, begin, _cmp);
+                _Merge(begin, lmid, mid, auxBegin);
+                _Merge(mid, rmid, end, auxMid);
+                _Merge(begin, mid, end, auxBegin);        
             }
             else if (count + count <= kBufferSize)
             {
