@@ -39,7 +39,7 @@ class Builder
 
         $Config = $this.TargetConfig
         $Root = $this.RootDir
-        $this.BuildDir = "$Root/build"
+        $this.BuildDir = "$Root/build/$Triplet"
     
         $this.BuildParams = @("-S", $this.RootDir, "-B", $this.BuildDir)
 
@@ -160,11 +160,15 @@ class WindowsBuilder : Builder
     # Constructor
     WindowsBuilder([String]$Arch, [String]$Config, [String]$Generator) : base("windows", $Arch, $Config, $Generator)
     {
-        if (-Not ($Arch -eq "" -Or $Arch -ieq "x64" -Or $Arch -ieq "x86" -Or $Arch -ieq "arm" -Or $Arch -ieq "arm64")){
+        # Use default Visual Studio generator 
+        $Generators = @("Visual Studio 16 2019", "Visual Studio 17 2022")
+        $Archs = @("x64", "x86", "arm64")
+
+        if (-Not ($Arch -eq "" -Or $Arch -in $Archs)){
             throw "Invalid target architecture"
         }
 
-        if (-Not ($Generator -eq "" -Or $Generator -eq "Visual Studio 16 2019" -Or $Generator -eq "Visual Studio 17 2022" -Or $Generator -eq "Ninja")){
+        if (-Not ($Generator -eq "" -Or $Generator -in $Generators)){
             throw "Invalid Generator"
         }
     }
@@ -172,31 +176,16 @@ class WindowsBuilder : Builder
     [void] PrepareBuildSetings()
     {
         ([Builder]$this).PrepareBuildSetings()
+        
+        $this.MultiConfig = $True
+
+        $Generator = $this.TargetGenerator
+        if (-Not $Generator -eq "") { $this.BuildParams += @("-G", $Generator) }
+
+        $this.BuildParams += @("-DCMAKE_CONFIGURATION_TYPES=Debug;Release;RelWithDebInfo;MinSizeRel")
 
         $Arch = $this.TargetArch
         if ($Arch -ieq "x86"){ $Arch = "Win32" }
-
-        $Config = $this.TargetConfig
-        $Generator = $this.TargetGenerator
-        if($Generator -eq ""){
-            # Use default Visual Studio generator 
-            $this.BuildParams += @("-DCMAKE_CONFIGURATION_TYPES=Debug;Release")
-            $this.BuildParams += @("-A", $Arch)
-            $this.MultiConfig = $True
-        }
-        else{
-            $this.BuildParams += @("-G", $Generator)
-            if ($Generator -ieq "Visual Studio 16 2019" -Or $Generator -ieq "Visual Studio 17 2022"){
-                if (-Not $Config -eq ""){ $this.BuildParams += @("-DCMAKE_CONFIGURATION_TYPES=Debug;Release") }
-                $this.BuildParams += @("-A", $Arch)
-                $this.MultiConfig = $True
-            }
-            else{
-                $Triplet = $this.TargetTriplet
-                $Root = $this.RootDir
-                $this.BuildDir = "$Root/build/$Triplet"
-                if (-Not $Config -eq ""){ $this.BuildParams += @("-DCMAKE_BUILD_TYPE=$Config") }
-            }
-        } 
+        $this.BuildParams += @("-A", $Arch)
     }
 }
