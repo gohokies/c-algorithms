@@ -99,30 +99,9 @@ namespace algorithms
                 return;
             }
 
-            size_t nl = count >> 1;
-            size_t nr = count - nl;
-            RandomIt mid = begin + nl;
-            if (count <= kBufferSize)
-            {
-                // Divide source items to 4 parts, and sort each of them.
-                BufIt auxMid = auxBegin + nl;
-                RandomIt lmid = begin + (nl >> 1);
-                RandomIt rmid = mid + (nr >> 1);
-                BufIt aux = auxBegin;
-                _Sort(begin, lmid, aux);
-                aux += nl >> 1;
-                _Sort(lmid, mid, aux);
-                aux = auxMid;
-                _Sort(mid, rmid, aux);
-                aux += nr >> 1;
-                _Sort(rmid, end, aux);
+            RandomIt mid = begin + (count >> 1);
 
-                // Merge 4 sorted parts to auxiliray array, and merge back in place. 
-                _Merge(begin, lmid, mid, auxBegin);
-                _Merge(mid, rmid, end, auxMid);
-                _Merge(begin, mid, end, auxBegin);        
-            }
-            else if (count + count <= kBufferSize)
+            if (count + count <= kBufferSize)
             {
                 _Sort(begin, mid, auxBegin);
                 _Sort(mid, end, auxBegin);

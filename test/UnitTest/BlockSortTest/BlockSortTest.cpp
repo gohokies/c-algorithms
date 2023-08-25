@@ -45,7 +45,7 @@ TEST(BlockSortTest, BlockSortTest_int32)
 {
     BlockSortTestAndVerify<int32_t>(RAND_MAX >> 1, 4096);
 }
-
+ 
 TEST(BlockSortTest, BlockSortTest_uint64)
 {
     BlockSortTestAndVerify<uint64_t>(0, 4096);

@@ -8,14 +8,14 @@
 template<typename T>
 static void BM_BlockSort(benchmark::State& state)
 {
-    std::vector<uint32_t> v;
+    std::vector<T> v;
     for (auto _ : state)
     {
         state.PauseTiming();
 
         // Fill array
         v.resize(state.range(0));
-        Test::fill_random_values<uint32_t>(v.data(), v.size(), 0);
+        Test::fill_random_values<T>(v.data(), v.size(), 0);
 
         state.ResumeTiming();
         algorithms::block_sort(v.begin(), v.end(), std::less<T>());
